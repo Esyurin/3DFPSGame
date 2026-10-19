@@ -31,22 +31,36 @@ jobs:
       - name: Create commit diff
         shell: bash
         env:
+          BEFORE_SHA: ${{ github.event.before }}
           COMMIT_SHA: ${{ github.sha }}
         run: |
-          if git rev-parse "${COMMIT_SHA}^" > /dev/null 2>&1; then
+          ZERO_SHA="0000000000000000000000000000000000000000"
+          PATHSPEC=':(glob)Assets/02.Scripts/**/*.cs'
+
+          # push 전 SHA를 알 수 있으면 이번 push의 전체 변경을 비교한다.
+          # (첫 push, force push, 수동 실행처럼 비교 기준이 없으면 최신 커밋만 본다.)
+          if [[ -n "${BEFORE_SHA}" && "${BEFORE_SHA}" != "${ZERO_SHA}" ]] \
+            && git cat-file -e "${BEFORE_SHA}^{commit}" 2> /dev/null; then
+            git diff \
+              --no-ext-diff \
+              --unified=80 \
+              "${BEFORE_SHA}" \
+              "${COMMIT_SHA}" \
+              -- "${PATHSPEC}" > commit.diff
+          elif git rev-parse "${COMMIT_SHA}^" > /dev/null 2>&1; then
             git diff \
               --no-ext-diff \
               --unified=80 \
               "${COMMIT_SHA}^" \
               "${COMMIT_SHA}" \
-              -- ':(glob)Assets/02.Scripts/**/*.cs' > commit.diff
+              -- "${PATHSPEC}" > commit.diff
           else
             git show \
               --format= \
               --no-ext-diff \
               --unified=80 \
               "${COMMIT_SHA}" \
-              -- ':(glob)Assets/02.Scripts/**/*.cs' > commit.diff
+              -- "${PATHSPEC}" > commit.diff
           fi
 
           if [[ ! -s commit.diff ]]; then
@@ -65,7 +79,7 @@ jobs:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           gemini_model: gemini-3.5-flash-lite
           prompt: |
-            현재 저장소의 최신 커밋을 코드 리뷰하세요.
+            이번 push에 포함된 변경사항(commit.diff)을 코드 리뷰하세요.
 
             반드시 먼저 commit.diff 파일을 읽고,
             Assets/02.Scripts 폴더에 포함된 C# 변경사항을 검토하세요.
