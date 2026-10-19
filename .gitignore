@@ -86,3 +86,4 @@ gha-creds-*.json
 *.iml
 *.ipr
 *.iws
+*.csproj.DotSettings
