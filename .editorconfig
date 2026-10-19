@@ -1,0 +1,113 @@
+root = true
+
+# C# 명명 규칙
+# 출처: https://learn.microsoft.com/ko-kr/dotnet/csharp/fundamentals/coding-style/identifier-names
+# 검사 대상: Assets/02.Scripts (IDE1006). pre-commit 훅(.husky/task-runner.json)에서도 검사한다.
+
+[Assets/02.Scripts/**.cs]
+
+# ---------------------------------------------------------------
+# 심볼 그룹
+# ---------------------------------------------------------------
+dotnet_naming_symbols.types.applicable_kinds = class, struct, enum, delegate
+dotnet_naming_symbols.types.applicable_accessibilities = *
+
+dotnet_naming_symbols.interfaces.applicable_kinds = interface
+dotnet_naming_symbols.interfaces.applicable_accessibilities = *
+
+dotnet_naming_symbols.namespaces.applicable_kinds = namespace
+dotnet_naming_symbols.namespaces.applicable_accessibilities = *
+
+dotnet_naming_symbols.type_parameters.applicable_kinds = type_parameter
+dotnet_naming_symbols.type_parameters.applicable_accessibilities = *
+
+dotnet_naming_symbols.constants.applicable_kinds = field, local
+dotnet_naming_symbols.constants.applicable_accessibilities = *
+dotnet_naming_symbols.constants.required_modifiers = const
+
+dotnet_naming_symbols.methods_and_events.applicable_kinds = method, local_function, property, event
+dotnet_naming_symbols.methods_and_events.applicable_accessibilities = *
+
+dotnet_naming_symbols.non_private_fields.applicable_kinds = field
+dotnet_naming_symbols.non_private_fields.applicable_accessibilities = public, protected, protected_internal
+
+dotnet_naming_symbols.static_private_fields.applicable_kinds = field
+dotnet_naming_symbols.static_private_fields.applicable_accessibilities = private, internal, private_protected
+dotnet_naming_symbols.static_private_fields.required_modifiers = static
+
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private, internal, private_protected
+
+dotnet_naming_symbols.parameters_and_locals.applicable_kinds = parameter, local
+dotnet_naming_symbols.parameters_and_locals.applicable_accessibilities = *
+
+# ---------------------------------------------------------------
+# 명명 스타일
+# ---------------------------------------------------------------
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+dotnet_naming_style.interface_style.capitalization = pascal_case
+dotnet_naming_style.interface_style.required_prefix = I
+
+dotnet_naming_style.type_parameter_style.capitalization = pascal_case
+dotnet_naming_style.type_parameter_style.required_prefix = T
+
+dotnet_naming_style.underscore_camel_case.capitalization = camel_case
+dotnet_naming_style.underscore_camel_case.required_prefix = _
+
+dotnet_naming_style.static_underscore_camel_case.capitalization = camel_case
+dotnet_naming_style.static_underscore_camel_case.required_prefix = s_
+
+dotnet_naming_style.camel_case.capitalization = camel_case
+
+# ---------------------------------------------------------------
+# 규칙 (위에서부터 우선 적용)
+# ---------------------------------------------------------------
+# 상수(필드·로컬): PascalCase
+dotnet_naming_rule.constants_pascal.symbols = constants
+dotnet_naming_rule.constants_pascal.style = pascal_case
+dotnet_naming_rule.constants_pascal.severity = warning
+
+# 인터페이스: I 접두사 + PascalCase
+dotnet_naming_rule.interfaces_i_prefix.symbols = interfaces
+dotnet_naming_rule.interfaces_i_prefix.style = interface_style
+dotnet_naming_rule.interfaces_i_prefix.severity = warning
+
+# 형식 매개 변수: T 접두사 + PascalCase
+dotnet_naming_rule.type_parameters_t_prefix.symbols = type_parameters
+dotnet_naming_rule.type_parameters_t_prefix.style = type_parameter_style
+dotnet_naming_rule.type_parameters_t_prefix.severity = warning
+
+# 클래스·구조체·열거형·대리자·네임스페이스: PascalCase
+dotnet_naming_rule.types_pascal.symbols = types
+dotnet_naming_rule.types_pascal.style = pascal_case
+dotnet_naming_rule.types_pascal.severity = warning
+
+dotnet_naming_rule.namespaces_pascal.symbols = namespaces
+dotnet_naming_rule.namespaces_pascal.style = pascal_case
+dotnet_naming_rule.namespaces_pascal.severity = warning
+
+# 메서드·로컬 함수·속성·이벤트: PascalCase
+dotnet_naming_rule.methods_and_events_pascal.symbols = methods_and_events
+dotnet_naming_rule.methods_and_events_pascal.style = pascal_case
+dotnet_naming_rule.methods_and_events_pascal.severity = warning
+
+# public/protected 필드: PascalCase
+dotnet_naming_rule.non_private_fields_pascal.symbols = non_private_fields
+dotnet_naming_rule.non_private_fields_pascal.style = pascal_case
+dotnet_naming_rule.non_private_fields_pascal.severity = warning
+
+# private/internal static 필드: s_camelCase
+dotnet_naming_rule.static_private_fields_s_prefix.symbols = static_private_fields
+dotnet_naming_rule.static_private_fields_s_prefix.style = static_underscore_camel_case
+dotnet_naming_rule.static_private_fields_s_prefix.severity = warning
+
+# private/internal 인스턴스 필드: _camelCase
+dotnet_naming_rule.private_fields_underscore.symbols = private_fields
+dotnet_naming_rule.private_fields_underscore.style = underscore_camel_case
+dotnet_naming_rule.private_fields_underscore.severity = warning
+
+# 매개 변수·지역 변수: camelCase
+dotnet_naming_rule.parameters_and_locals_camel.symbols = parameters_and_locals
+dotnet_naming_rule.parameters_and_locals_camel.style = camel_case
+dotnet_naming_rule.parameters_and_locals_camel.severity = warning

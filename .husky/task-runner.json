@@ -1,0 +1,19 @@
+{
+   "$schema": "https://alirezanet.github.io/Husky.Net/schema.json",
+   "tasks": [
+      {
+         "name": "format-02.Scripts",
+         "group": "pre-commit",
+         "command": "dotnet",
+         "args": [ "format", "whitespace", "--folder", "--verify-no-changes", "--include", "${staged}" ],
+         "include": [ "Assets/02.Scripts/**/*.cs" ]
+      },
+      {
+         "name": "naming-02.Scripts",
+         "group": "pre-commit",
+         "command": "dotnet",
+         "args": [ "format", "style", "3DFPSGame.sln", "--diagnostics", "IDE1006", "--severity", "warn", "--verify-no-changes", "--include", "${staged}" ],
+         "include": [ "Assets/02.Scripts/**/*.cs" ]
+      }
+   ]
+}

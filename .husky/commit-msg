@@ -1,0 +1,43 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+## Conventional Commits 1.0.0 검사 (https://www.conventionalcommits.org/ko/v1.0.0/)
+## 형식: <type>[(scope)][!]: <description>
+
+# 표준 type
+TYPES="feat|fix|build|chore|ci|docs|style|refactor|perf|test|revert"
+# Unity 개발용 type
+UNITY_TYPES="scene|prefab|asset|anim|audio|setting|package"
+
+msg_file="$1"
+first_line=$(head -n 1 "$msg_file")
+
+# git이 자동 생성하는 메시지는 통과
+case "$first_line" in
+  Merge\ *|Revert\ *|fixup!\ *|squash!\ *) exit 0 ;;
+esac
+
+pattern="^(${TYPES}|${UNITY_TYPES})(\([a-zA-Z0-9._/-]+\))?!?: .+"
+
+if ! echo "$first_line" | grep -Eq "$pattern"; then
+  echo "커밋 메시지가 Conventional Commits 규칙에 맞지 않습니다."
+  echo ""
+  echo "  형식: <type>[(scope)][!]: <description>"
+  echo "  예시: feat(player): 점프 기능 추가"
+  echo "        fix!: 저장 데이터 포맷 변경"
+  echo ""
+  echo "  표준 type : feat, fix, build, chore, ci, docs, style, refactor, perf, test, revert"
+  echo "  Unity type: scene, prefab, asset, anim, audio, setting, package"
+  echo ""
+  echo "  입력한 메시지: $first_line"
+  exit 1
+fi
+
+# 본문/푸터는 제목과 빈 줄로 분리되어야 함
+second_line=$(sed -n '2p' "$msg_file")
+if [ -n "$second_line" ] && [ "${second_line#\#}" = "$second_line" ]; then
+  echo "제목(첫 줄) 다음에는 빈 줄이 필요합니다."
+  exit 1
+fi
+
+exit 0
