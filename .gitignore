@@ -77,3 +77,12 @@ crashlytics-build.properties
 # Gemini CLI
 .gemini/
 gha-creds-*.json
+
+# JetBrains Rider
+.idea/
+*.sln.DotSettings.user
+*.DotSettings.user
+.idea_modules/
+*.iml
+*.ipr
+*.iws
