@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FpsCameraRotate : MonoBehaviour
+public class CameraRotate : MonoBehaviour
 {
     private const string MouseXAxis = "Mouse X";
     private const string MouseYAxis = "Mouse Y";
