@@ -1,21 +1,32 @@
-﻿using UnityEngine;
+﻿using Game;
+using UnityEngine;
 
-public class PlayerMove : MonoBehaviour
+namespace Player
 {
-    [SerializeField] private float _moveSpeed;
-
-    // Move player depending on keyboard
-    private void Update()
+    public class PlayerMove : MonoBehaviour
     {
-        // Get keyboard input
-        float horizontalInput = Input.GetAxis("Horizontal");
-        float verticalInput = Input.GetAxis("Vertical");
+        [SerializeField] private float _moveSpeed;
+        [SerializeField] private CharacterController _characterController;
 
-        // Calculate direction to move
-        Vector3 direction = new Vector3(horizontalInput, 0, verticalInput).normalized;
-        direction = transform.TransformDirection(direction);
+        private void Awake()
+        {
+            _characterController = GetComponent<CharacterController>();
+        }
 
-        // Move player
-        transform.position += direction * (_moveSpeed * Time.deltaTime);
+        // Move player depending on keyboard
+        private void Update()
+        {
+            // Get keyboard input
+            float horizontalInput = Input.GetAxis("Horizontal");
+            float verticalInput = Input.GetAxis("Vertical");
+            // GameLogger.Log($"Horizontal input: {horizontalInput}, Vertical input: {verticalInput}");
+
+            // Calculate direction to move
+            Vector3 direction = new Vector3(horizontalInput, 0, verticalInput).normalized;
+            direction = transform.TransformDirection(direction);
+
+            // Move player
+            _characterController.SimpleMove(direction * _moveSpeed);
+        }
     }
 }
