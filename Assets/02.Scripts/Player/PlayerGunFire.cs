@@ -7,6 +7,8 @@ namespace Player
     {
         private const string FireButton = "Fire1";
 
+        [SerializeField] private ParticleSystem _hitEffectPrefab;
+
         [SerializeField] private float _range = 100f;
         [SerializeField] private float _damage = 10f;
 
@@ -28,7 +30,8 @@ namespace Player
             Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
             if (!Physics.Raycast(ray, out RaycastHit hit, _range))
                 return;
-            // Debug.Log("Hit: " + hit.collider.name);
+            ParticleSystem hitEffect = Instantiate(_hitEffectPrefab, hit.point, Quaternion.identity);
+            hitEffect.transform.LookAt(hit.point + hit.normal);
         }
     }
 }

@@ -1691,6 +1691,7 @@ GameObject:
   - component: {fileID: 1595047674}
   - component: {fileID: 1595047675}
   - component: {fileID: 1595047676}
+  - component: {fileID: 1595047677}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1853,6 +1854,21 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1595047677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1595047669}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5213750dae996ca4b8819a914263f7be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Player.PlayerGunFire
+  _hitEffectPrefab: {fileID: 19800002, guid: 54dd9cb5740188a488b8baebbf19207c, type: 3}
+  _range: 100
+  _damage: 10
 --- !u!1 &1829882167
 GameObject:
   m_ObjectHideFlags: 0
