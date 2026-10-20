@@ -8,25 +8,29 @@ namespace Player
     {
         private const float Gravity = -9.81f / 16f;
 
-        [SerializeField] private float _baseMoveSpeed = 6f;
         [SerializeField] private CharacterController _characterController;
+        [SerializeField] private float _baseMoveSpeed = 6f;
+        [SerializeField] private float _dashSpeed = 12f;
         [SerializeField] private float _jumpForce = 0.5f;
+        [SerializeField] private float _maxStamina = 100f;
+        [SerializeField] private float _staminaRegenRate = 10f;
+        [SerializeField] private float _dashStaminaRate = 20f;
+        [SerializeField] private float _jumpStamina = 30f;
 
         private float _yVelocity; // Vertical velocity increased by gravity on each frame
-        private int _jumpCount = 0;
+        private int _jumpCount;
+        private float _stamina;
 
         private void Awake()
         {
             _characterController = GetComponent<CharacterController>();
+            _stamina = _maxStamina;
         }
 
         private void Update()
         {
             Move();
-            // 2단 점프: 공중에서 한 더 뛰는 2단 점프를 만듭니다. 
-            //     스태미나를 만들어서 적용합니다. (스태미나가 있을 경우에만 질주/점프 가능)
-            // 질주시 스태미나를 소모합니다.
-            //     점프시 스태미나를 소모합니다.
+            RegenerateStamina();
         }
 
         private void Move()
@@ -36,7 +40,12 @@ namespace Player
             Vector3 direction = new Vector3(horizontalInput, 0, verticalInput).normalized;
             direction = transform.TransformDirection(direction);
 
-            float moveSpeed = Input.GetKey(KeyCode.LeftShift) ? 12f : _baseMoveSpeed;
+            float moveSpeed = _baseMoveSpeed;
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                moveSpeed = _stamina > 0f ? _dashSpeed : _baseMoveSpeed;
+                _stamina = Mathf.Max(0f, _stamina - _dashStaminaRate * Time.deltaTime);
+            }
 
             if (_characterController.isGrounded)
             {
@@ -48,14 +57,20 @@ namespace Player
                 _yVelocity += Gravity * Time.deltaTime;
             }
 
-            if (Input.GetButtonDown("Jump") && _jumpCount < 2)
+            if (Input.GetButtonDown("Jump") && _jumpCount < 2 && _stamina > _jumpStamina)
             {
                 _yVelocity = _jumpForce;
                 _jumpCount++;
+                _stamina -= _jumpStamina;
             }
 
             Vector3 velocity = direction * (moveSpeed * Time.deltaTime) + Vector3.up * _yVelocity;
             _characterController.Move(velocity);
+        }
+
+        private void RegenerateStamina()
+        {
+            _stamina = Mathf.Min(_maxStamina, _stamina + _staminaRegenRate * Time.deltaTime);
         }
     }
 }
