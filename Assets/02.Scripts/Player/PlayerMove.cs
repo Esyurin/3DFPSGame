@@ -7,6 +7,7 @@ namespace Player
     public class PlayerMove : MonoBehaviour
     {
         private const float Gravity = -9.81f / 16f;
+        private const int MaxJumpCount = 2;
 
         [SerializeField] private CharacterController _characterController;
         [SerializeField] private float _baseMoveSpeed = 6f;
@@ -57,7 +58,7 @@ namespace Player
                 _yVelocity += Gravity * Time.deltaTime;
             }
 
-            if (Input.GetButtonDown("Jump") && _jumpCount < 2 && _stamina > _jumpStamina)
+            if (Input.GetButtonDown("Jump") && _jumpCount < MaxJumpCount && _stamina > _jumpStamina)
             {
                 _yVelocity = _jumpForce;
                 _jumpCount++;
