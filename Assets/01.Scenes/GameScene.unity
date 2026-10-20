@@ -1869,6 +1869,7 @@ MonoBehaviour:
   _hitEffectPrefab: {fileID: 19800002, guid: 54dd9cb5740188a488b8baebbf19207c, type: 3}
   _range: 100
   _damage: 10
+  _fireCooldown: 0.1
 --- !u!1 &1829882167
 GameObject:
   m_ObjectHideFlags: 0
