@@ -102,6 +102,16 @@ dotnet_naming_rule.static_private_fields_s_prefix.symbols = static_private_field
 dotnet_naming_rule.static_private_fields_s_prefix.style = static_underscore_camel_case
 dotnet_naming_rule.static_private_fields_s_prefix.severity = warning
 
+# Unity serialized instance fields: _camelCase
+dotnet_naming_symbols.unity_private_serialized_fields.applicable_kinds = field
+dotnet_naming_symbols.unity_private_serialized_fields.applicable_accessibilities = private
+dotnet_naming_symbols.unity_private_serialized_fields.resharper_applicable_kinds = unity_serialised_field
+dotnet_naming_symbols.unity_private_serialized_fields.resharper_required_modifiers = instance
+
+dotnet_naming_rule.unity_private_serialized_fields_underscore.symbols = unity_private_serialized_fields
+dotnet_naming_rule.unity_private_serialized_fields_underscore.style = underscore_camel_case
+dotnet_naming_rule.unity_private_serialized_fields_underscore.severity = warning
+
 # private/internal 인스턴스 필드: _camelCase
 dotnet_naming_rule.private_fields_underscore.symbols = private_fields
 dotnet_naming_rule.private_fields_underscore.style = underscore_camel_case
