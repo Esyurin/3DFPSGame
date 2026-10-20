@@ -41,7 +41,7 @@ namespace Player
             direction = transform.TransformDirection(direction);
 
             float moveSpeed = _baseMoveSpeed;
-            if (Input.GetKey(KeyCode.LeftShift))
+            if (Input.GetButton("Dash"))
             {
                 moveSpeed = _stamina > 0f ? _dashSpeed : _baseMoveSpeed;
                 _stamina = Mathf.Max(0f, _stamina - _dashStaminaRate * Time.deltaTime);
