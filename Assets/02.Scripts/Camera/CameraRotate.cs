@@ -2,26 +2,26 @@ using UnityEngine;
 
 public class CameraRotate : MonoBehaviour
 {
-    private const string MouseXAxis = "Mouse X";
-    private const string MouseYAxis = "Mouse Y";
+    [SerializeField] private float _sensitivity = 2f;
+    [SerializeField] private float _minPitch = -90f;
+    [SerializeField] private float _maxPitch = 90f;
 
-    [SerializeField] private float _rotationSpeed;
+    private float _yaw;
+    private float _pitch;
+
+    private void Start()
+    {
+        Vector3 euler = transform.eulerAngles;
+        _yaw = euler.y;
+        _pitch = Mathf.DeltaAngle(0f, euler.x);
+    }
 
     private void Update()
     {
-        // Take mouse input from the user
-        float mouseX = Input.GetAxis(MouseXAxis);
-        float mouseY = Input.GetAxis(MouseYAxis);
+        _yaw += Input.GetAxis("Mouse X") * _sensitivity;
+        _pitch -= Input.GetAxis("Mouse Y") * _sensitivity;
+        _pitch = Mathf.Clamp(_pitch, _minPitch, _maxPitch);
 
-        // Calculate direction to rotate
-        var direction = new Vector3(-mouseY, mouseX, 0);
-
-        // Rotate the camera based on the mouse input
-        transform.Rotate(_rotationSpeed * Time.deltaTime * direction);
-
-        // Restrict vertical rotation
-        Vector3 rotation = transform.eulerAngles;
-        rotation.x = Mathf.Clamp(Mathf.DeltaAngle(0f, rotation.x), -90f, 90f);
-        transform.eulerAngles = rotation;
+        transform.rotation = Quaternion.Euler(_pitch, _yaw, 0f);
     }
 }

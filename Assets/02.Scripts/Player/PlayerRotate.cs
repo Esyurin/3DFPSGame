@@ -1,12 +1,17 @@
 ﻿using UnityEngine;
 
-public class PlayerRotate : MonoBehaviour
+namespace Player
 {
-    [SerializeField] private float _rotationSpeed = 200f;
-
-    private void Update()
+    public class PlayerRotate : MonoBehaviour
     {
-        float mouseX = Input.GetAxis("Mouse X");
-        transform.Rotate(0f, mouseX * _rotationSpeed * Time.deltaTime, 0f);
+        private const string MouseXAxis = "Mouse X";
+
+        [SerializeField] private float _sensitivity = 2f;
+
+        private void Update()
+        {
+            float mouseX = Input.GetAxis(MouseXAxis);
+            transform.Rotate(0f, mouseX * _sensitivity, 0f);
+        }
     }
 }

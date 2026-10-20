@@ -447,7 +447,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab3c2b362695f32459dd69a7fafd1c9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraRotate
-  _rotationSpeed: 200
+  _sensitivity: 2
+  _minPitch: -90
+  _maxPitch: 90
 --- !u!114 &330585549
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1628,7 +1630,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bf4fe0b11e34998888c37fa5cbd780c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerRotate
-  _rotationSpeed: 200
+  _sensitivity: 2
 --- !u!114 &1595047675
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1642,6 +1644,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
   _moveSpeed: 10
+  _characterController: {fileID: 0}
+  _jumpForce: 1
 --- !u!143 &1595047676
 CharacterController:
   m_ObjectHideFlags: 0
