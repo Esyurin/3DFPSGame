@@ -6,13 +6,14 @@ namespace Player
 {
     public class PlayerMove : MonoBehaviour
     {
-        private const float Gravity = -9.81f / 8f;
+        private const float Gravity = -9.81f / 16f;
 
         [SerializeField] private float _baseMoveSpeed = 6f;
         [SerializeField] private CharacterController _characterController;
         [SerializeField] private float _jumpForce = 0.5f;
 
         private float _yVelocity; // Vertical velocity increased by gravity on each frame
+        private int _jumpCount = 0;
 
         private void Awake()
         {
@@ -38,9 +39,20 @@ namespace Player
             float moveSpeed = Input.GetKey(KeyCode.LeftShift) ? 12f : _baseMoveSpeed;
 
             if (_characterController.isGrounded)
-                _yVelocity = Input.GetButtonDown("Jump") ? _jumpForce : -1f;
+            {
+                _jumpCount = 0;
+                _yVelocity = 0f;
+            }
             else
+            {
                 _yVelocity += Gravity * Time.deltaTime;
+            }
+
+            if (Input.GetButtonDown("Jump") && _jumpCount < 2)
+            {
+                _yVelocity = _jumpForce;
+                _jumpCount++;
+            }
 
             Vector3 velocity = direction * (moveSpeed * Time.deltaTime) + Vector3.up * _yVelocity;
             _characterController.Move(velocity);
