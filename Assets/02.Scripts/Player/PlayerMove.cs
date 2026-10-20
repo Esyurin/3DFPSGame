@@ -5,8 +5,13 @@ namespace Player
 {
     public class PlayerMove : MonoBehaviour
     {
+        private const float Gravity = -9.81f;
+
         [SerializeField] private float _moveSpeed;
         [SerializeField] private CharacterController _characterController;
+        [SerializeField] private float _jumpForce = 0.5f;
+
+        private float _yVelocity; // Vertical velocity increased by gravity on each frame
 
         private void Awake()
         {
@@ -25,8 +30,18 @@ namespace Player
             Vector3 direction = new Vector3(horizontalInput, 0, verticalInput).normalized;
             direction = transform.TransformDirection(direction);
 
+            if (!_characterController.isGrounded)
+                _yVelocity += Gravity * Time.deltaTime;
+            else
+                _yVelocity = 0;
+
+            if (Input.GetButtonDown("Jump") && _characterController.isGrounded)
+                _yVelocity = _jumpForce;
+
+            Vector3 velocity = direction * (_moveSpeed * Time.deltaTime) + Vector3.up * _yVelocity;
+
             // Move player
-            _characterController.SimpleMove(direction * _moveSpeed);
+            _characterController.Move(velocity);
         }
     }
 }
