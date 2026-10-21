@@ -1431,6 +1431,54 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &878080927
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 878080929}
+  - component: {fileID: 878080928}
+  m_Layer: 0
+  m_Name: BombPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &878080928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 878080927}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb93439ec619e244abd1928f481a40f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Weapon.BombPool
+  _bombPrefab: {fileID: 4210103745770856033, guid: 000765313fa0fba438467980b1bf05f2, type: 3}
+  _effectPrefab: {fileID: 8871397480869300927, guid: cae4962fd1d3ec74885bec34568aef02, type: 3}
+  _initialSize: 5
+  _maxSize: 10
+--- !u!4 &878080929
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 878080927}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1041930892
 GameObject:
   m_ObjectHideFlags: 0
@@ -2071,10 +2119,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerBombFire
   _firePosition: {fileID: 586629022}
-  _bombPrefab: {fileID: 4210103745770856033, guid: 000765313fa0fba438467980b1bf05f2, type: 3}
+  _bombPool: {fileID: 878080928}
   _bombAmountUI: {fileID: 603996349}
-  _throwPower: 15
+  _baseThrowPower: 15
   _maxBombs: 10
+  _maxHoldTime: 2
+  _maxThrowForce: 30
 --- !u!1 &1829882167
 GameObject:
   m_ObjectHideFlags: 0
@@ -2307,3 +2357,4 @@ SceneRoots:
   - {fileID: 32635962}
   - {fileID: 1344958179}
   - {fileID: 2129351628}
+  - {fileID: 878080929}
