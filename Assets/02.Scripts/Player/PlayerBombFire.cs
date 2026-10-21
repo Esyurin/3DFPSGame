@@ -8,7 +8,7 @@ namespace Player
     public class PlayerBombFire : MonoBehaviour
     {
         [SerializeField] private Transform _firePosition;
-        [SerializeField] private Bomb _bombPrefab;
+        [SerializeField] private BombPool _bombPool;
         [SerializeField] private BombAmountUI _bombAmountUI;
         [SerializeField] private float _baseThrowPower = 15f;
         [SerializeField] private int _maxBombs = 3;
@@ -48,10 +48,8 @@ namespace Player
 
             if (Input.GetMouseButtonUp(1) && _currentBombs > 0)
             {
-                Bomb bomb = Instantiate(_bombPrefab, _firePosition.position, Quaternion.identity);
-                if (!bomb.TryGetComponent(out Rigidbody bombRigidbody))
-                    return;
-
+                Bomb bomb = _bombPool.GetBomb(_firePosition.position);
+                Rigidbody bombRigidbody = bomb.GetComponent<Rigidbody>();
                 bombRigidbody.AddForce(_camera.transform.forward * _throwForce, ForceMode.Impulse);
                 _currentBombs--;
                 _bombAmountUI.Refresh(_currentBombs);
