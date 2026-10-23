@@ -1,22 +1,29 @@
-﻿using Game;
+﻿using System;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Player
 {
+    [Serializable]
+    public class MoveConfig
+    {
+        [SerializeField] private float _gravity = -20f;
+        [SerializeField] private int _maxJumps = 2;
+        [SerializeField] private float _sprintCost = 20f;
+        [SerializeField] private float _jumpCost = 20f;
+
+        public float Gravity => _gravity;
+        public int MaxJumps => _maxJumps;
+        public float SprintCost => _sprintCost;
+        public float JumpCost => _jumpCost;
+    }
+
+    [RequireComponent(typeof(CharacterController))]
+    [RequireComponent(typeof(PlayerStats))]
     public class PlayerMove : MonoBehaviour
     {
-        private const float Gravity = -9.81f / 16f;
-        private const int MaxJumpCount = 2;
-
         [SerializeField] private CharacterController _characterController;
-        [SerializeField] private float _baseMoveSpeed = 6f;
-        [SerializeField] private float _dashSpeed = 12f;
-        [SerializeField] private float _jumpForce = 0.5f;
-        [SerializeField] private float _maxStamina = 100f;
-        [SerializeField] private float _staminaRegenRate = 10f;
-        [SerializeField] private float _dashStaminaRate = 20f;
-        [SerializeField] private float _jumpStamina = 30f;
+        [SerializeField] private float _jumpPower = 10f;
+        [SerializeField] private MoveConfig _config = new();
 
         // 코요테 타임: 발판을 살짝 벗어나도 첫 점프를 허용해 경계에서의 입력 실수를 줄인다.
         [SerializeField, Min(0f)] private float _coyoteTime = 0.1f;
@@ -27,37 +34,40 @@ namespace Player
 
         private float _yVelocity; // Vertical velocity increased by gravity on each frame
         private int _jumpCount;
-        private float _stamina;
         // 코요테 타임과 점프 버퍼: 실제 접지/입력 전에는 유예가 발동하지 않도록 초기화한다.
         private float _lastGroundedTime = float.NegativeInfinity;
         private float _lastJumpPressedTime = float.NegativeInfinity;
         // 가변 점프 배율이 0이어도 점프 다음 프레임의 접지 판정으로 횟수가 초기화되지 않게 한다.
         private bool _jumpedLastFrame;
+        private PlayerStats _stats;
 
         private void Awake()
         {
             _characterController = GetComponent<CharacterController>();
-            _stamina = _maxStamina;
+            _stats = GetComponent<PlayerStats>();
         }
 
         private void Update()
         {
             Move();
-            RegenerateStamina();
         }
 
         private void Move()
         {
+            // 1. 키보드 입력을 받는다.
             float horizontalInput = Input.GetAxis("Horizontal");
             float verticalInput = Input.GetAxis("Vertical");
+
+            // 2. 키보드 입력에 따라 방향을 구한다.
             Vector3 direction = new Vector3(horizontalInput, 0, verticalInput).normalized;
+            // 캐릭터의 회전 방향을 기준으로 지역 방향 벡터를 월드 방향 벡터로 변환한다.
             direction = transform.TransformDirection(direction);
 
-            float moveSpeed = _baseMoveSpeed;
+            float moveSpeed = _stats.MoveSpeed;
             if (Input.GetButton("Dash"))
             {
-                moveSpeed = _stamina > 0f ? _dashSpeed : _baseMoveSpeed;
-                _stamina = Mathf.Max(0f, _stamina - _dashStaminaRate * Time.deltaTime);
+                moveSpeed = _stats.Stamina > 0f ? _stats.SprintSpeed : _stats.MoveSpeed;
+                _stats.SetStamina(_stats.Stamina - _config.SprintCost * Time.deltaTime);
             }
 
             // 접지 가드: 점프 직후 남은 접지 판정이 _jumpCount를 0으로 되돌려 추가 점프를 허용하지 않게 한다.
@@ -65,12 +75,12 @@ namespace Player
             if (isGrounded)
             {
                 _jumpCount = 0;
-                _yVelocity = 0f;
+                _yVelocity = -1f;
                 _lastGroundedTime = Time.time;
             }
             else
             {
-                _yVelocity += Gravity * Time.deltaTime;
+                _yVelocity += _config.Gravity * Time.deltaTime;
 
                 // 코요테 타임: 유예가 끝나면 첫 점프 기회만 만료시키고 공중 점프 1회는 남긴다.
                 if (_jumpCount == 0 && Time.time - _lastGroundedTime > _coyoteTime)
@@ -87,11 +97,11 @@ namespace Player
 
             _jumpedLastFrame = false;
             if (Time.time - _lastJumpPressedTime <= _jumpBufferTime &&
-                _jumpCount < MaxJumpCount && _stamina > _jumpStamina)
+                _jumpCount < _config.MaxJumps && _stats.Stamina > _config.JumpCost)
             {
-                _yVelocity = _jumpForce;
+                _yVelocity = _jumpPower;
                 _jumpCount++;
-                _stamina -= _jumpStamina;
+                _stats.SetStamina(_stats.Stamina - _config.JumpCost);
                 _jumpedLastFrame = true;
                 // 점프 버퍼는 성공할 때만 소모하며, 스태미나 부족 시에는 만료까지 유지한다.
                 // 코요테 유예도 함께 끝내 첫 점프와 공중 점프가 중복 허용되지 않게 한다.
@@ -106,13 +116,8 @@ namespace Player
                 _yVelocity *= _jumpCutMultiplier;
             }
 
-            Vector3 velocity = direction * (moveSpeed * Time.deltaTime) + Vector3.up * _yVelocity;
-            _characterController.Move(velocity);
-        }
-
-        private void RegenerateStamina()
-        {
-            _stamina = Mathf.Min(_maxStamina, _stamina + _staminaRegenRate * Time.deltaTime);
+            Vector3 velocity = direction * moveSpeed + Vector3.up * _yVelocity;
+            _characterController.Move(velocity * Time.deltaTime);
         }
     }
 }
