@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" font-family="'Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR',Arial,sans-serif">
+  <title>foreach, IEnumerable, IEnumerator의 관계</title>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#374151"/></marker>
+  </defs>
+  <rect width="760" height="300" fill="#ffffff"/>
+  <!-- foreach -->
+  <rect x="20" y="95" width="150" height="90" rx="10" fill="#f3f4f6" stroke="#374151" stroke-width="2"/>
+  <text x="95" y="132" text-anchor="middle" font-size="18" font-weight="700" fill="#111827">foreach</text>
+  <text x="95" y="158" text-anchor="middle" font-size="13" fill="#374151">(사용하는 쪽)</text>
+  <!-- IEnumerable -->
+  <rect x="270" y="30" width="200" height="90" rx="10" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="370" y="62" text-anchor="middle" font-size="18" font-weight="700" fill="#1e3a8a">IEnumerable</text>
+  <text x="370" y="84" text-anchor="middle" font-size="13" fill="#1e3a8a">순회할 수 있는 "대상"</text>
+  <text x="370" y="106" text-anchor="middle" font-size="13" font-family="Consolas,monospace" fill="#1e3a8a">GetEnumerator()</text>
+  <!-- IEnumerator -->
+  <rect x="540" y="30" width="200" height="150" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="640" y="62" text-anchor="middle" font-size="18" font-weight="700" fill="#14532d">IEnumerator</text>
+  <text x="640" y="84" text-anchor="middle" font-size="13" fill="#14532d">순회 상태를 가진 "커서"</text>
+  <text x="640" y="116" text-anchor="middle" font-size="13" font-family="Consolas,monospace" fill="#14532d">Current</text>
+  <text x="640" y="140" text-anchor="middle" font-size="13" font-family="Consolas,monospace" fill="#14532d">MoveNext() : bool</text>
+  <text x="640" y="164" text-anchor="middle" font-size="13" font-family="Consolas,monospace" fill="#14532d">Reset()</text>
+  <!-- arrows -->
+  <path d="M170,115 L270,80" stroke="#374151" stroke-width="2" fill="none" marker-end="url(#a)"/>
+  <text x="70" y="82" font-size="13" fill="#111827">① 순회 요청</text>
+  <path d="M470,75 L540,75" stroke="#374151" stroke-width="2" fill="none" marker-end="url(#a)"/>
+  <text x="505" y="66" text-anchor="middle" font-size="13" fill="#111827">② 반환</text>
+  <!-- loop -->
+  <path d="M95,185 L95,250 L640,250 L640,180" stroke="#374151" stroke-width="2" stroke-dasharray="6 4" fill="none" marker-end="url(#a)"/>
+  <text x="367" y="240" text-anchor="middle" font-size="14" fill="#111827">③ MoveNext()가 true인 동안 반복 호출하며 Current를 읽음</text>
+  <text x="367" y="278" text-anchor="middle" font-size="12" fill="#6b7280">일반적인 컬렉션은 GetEnumerator()를 호출할 때마다 별도의 순회 상태를 가진 열거자를 반환한다.</text>
+</svg>
