@@ -1,10 +1,13 @@
 ﻿using System;
+using UI;
 using UnityEngine;
 
 namespace Player
 {
     public class Player : MonoBehaviour
     {
+        [SerializeField] private HitEffectUI _hitEffectUI;
+
         private PlayerStats _stats;
 
         private void Awake()
@@ -20,6 +23,7 @@ namespace Player
             }
 
             _stats.SetHealth(_stats.Health - damage);
+            _hitEffectUI.Play();
             return true;
         }
     }
