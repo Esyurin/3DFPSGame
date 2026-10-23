@@ -1,5 +1,8 @@
 using System;
 using System.Collections;
+using Core;
+using Environment;
+using Monster;
 using UnityEngine;
 
 namespace Player
@@ -51,6 +54,10 @@ namespace Player
             if (!Physics.Raycast(ray, out RaycastHit hit, _range))
                 return;
 
+            DamageInfo damageInfo = new DamageInfo(_damage, hit.point, hit.normal);
+            if (hit.collider.TryGetComponent(out IDamageable damageable))
+                damageable.TakeDamage(damageInfo);
+
             _nextFireTime = Time.time + _fireCooldown;
             _bulletCount--;
 
@@ -78,7 +85,7 @@ namespace Player
 
         private void CancelReload()
         {
-            if (_reloadCoroutine != null)
+            if (_reloadCoroutine == null)
                 return;
 
             StopCoroutine(_reloadCoroutine);
