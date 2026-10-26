@@ -8,5 +8,7 @@ namespace Monster
         Attack,
         Hit,
         Death,
+        Patrol,
+        Roaming,
     }
 }

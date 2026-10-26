@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Generic;
 using Core;
 using Game;
+using Monster.States;
 using UnityEngine;
 
 namespace Monster
@@ -25,23 +26,43 @@ namespace Monster
         [SerializeField] private float _attackDistance = 1.5f;
         [SerializeField] private float _comebackDistance = 15f;
         [SerializeField] private float _arriveDistance = 0.5f;
+        [SerializeField] private float _roamRadius = 6f;
 
         [Header("Time (s)")]
         [SerializeField] private float _attackInterval = 2f;
         [SerializeField] private float _hitTime = 0.3f;
         [SerializeField] private float _deathTime = 2f;
+        [SerializeField] private float _idleTime = 2f;
+        [SerializeField] private float _roamTimeout = 5f;
+
+        [Header("Patrol")]
+        [SerializeField] private Transform[] _patrolWaypoints;
+
+        private readonly Dictionary<MonsterState, ZombieState> _states = new Dictionary<MonsterState, ZombieState>();
 
         private CharacterController _controller;
         private Player.Player _player;
+        private ZombieState _currentState;
         private float _attackTimer;
         private Vector3 _startPosition;
-        private Coroutine _hitCoroutine;
 
         public float Health { get; private set; }
-
         public float MaxHealth => _maxHealth;
 
-        public event Action OnDamaged;
+        public Player.Player Player => _player;
+        public Vector3 StartPosition => _startPosition;
+        public Transform[] Waypoints => _patrolWaypoints;
+        public bool HasWaypoints => _patrolWaypoints != null && _patrolWaypoints.Length > 0;
+
+        public float AttackDistance => _attackDistance;
+        public float ComebackDistance => _comebackDistance;
+        public float RoamRadius => _roamRadius;
+        public float HitTime => _hitTime;
+        public float DeathTime => _deathTime;
+        public float IdleTime => _idleTime;
+        public float RoamTimeout => _roamTimeout;
+
+        public event Action OnHealthChanged;
         public event Action OnDeath;
 
         private void Awake()
@@ -57,6 +78,18 @@ namespace Monster
 
             Health = _maxHealth;
             _startPosition = transform.position;
+
+            _states.Add(MonsterState.Idle, new ZombieIdleState(this));
+            _states.Add(MonsterState.Patrol, new ZombiePatrolState(this));
+            _states.Add(MonsterState.Roaming, new ZombieRoamingState(this));
+            _states.Add(MonsterState.Trace, new ZombieTraceState(this));
+            _states.Add(MonsterState.Attack, new ZombieAttackState(this));
+            _states.Add(MonsterState.Comeback, new ZombieComebackState(this));
+            _states.Add(MonsterState.Hit, new ZombieHitState(this));
+            _states.Add(MonsterState.Death, new ZombieDeathState(this));
+
+            _currentState = _states[_state];
+            _currentState.Enter();
         }
 
         private void Update()
@@ -67,93 +100,84 @@ namespace Monster
             if (_attackTimer > 0f)
                 _attackTimer -= Time.deltaTime;
 
-            switch (_state)
-            {
-                case MonsterState.Idle:
-                    Idle();
-                    break;
-                case MonsterState.Trace:
-                    Trace();
-                    break;
-                case MonsterState.Comeback:
-                    Comeback();
-                    break;
-                case MonsterState.Attack:
-                    Attack();
-                    break;
-            }
+            _currentState.Update();
         }
 
-        private void ChangeState(MonsterState nextState)
+        public void ChangeState(MonsterState nextState)
         {
-            Debug.Log($"{name}: {_state} -> {nextState}");
+            GameLogger.Log($"{name}: {_state} -> {nextState}");
+            _currentState.Exit();
             _state = nextState;
+            _currentState = _states[nextState];
+            _currentState.Enter();
         }
 
-        private void Idle()
+        public float DistanceToPlayer()
         {
-            float distance = Vector3.Distance(transform.position, _player.transform.position);
-            if (distance <= _detectDistance)
-                ChangeState(MonsterState.Trace);
+            return Vector3.Distance(transform.position, _player.transform.position);
         }
 
-        private void Trace()
+        public float DistanceFromStart()
         {
-            if (Vector3.Distance(transform.position, _startPosition) > _comebackDistance)
-            {
-                ChangeState(MonsterState.Comeback);
-                return;
-            }
+            return Vector3.Distance(transform.position, _startPosition);
+        }
 
-            float distance = Vector3.Distance(transform.position, _player.transform.position);
-            if (distance <= _attackDistance)
-            {
-                ChangeState(MonsterState.Attack);
-                return;
-            }
+        public bool IsPlayerDetected()
+        {
+            return DistanceToPlayer() <= _detectDistance;
+        }
 
-            Vector3 direction = _player.transform.position - transform.position;
+        // 높이는 무시하고 바닥 기준으로 도착했는지 본다.
+        public bool IsArrived(Vector3 target)
+        {
+            Vector3 offset = target - transform.position;
+            offset.y = 0f;
+            return offset.magnitude < _arriveDistance;
+        }
+
+        public void MoveTo(Vector3 target)
+        {
+            Vector3 direction = target - transform.position;
             direction.y = 0f;
+            if (direction == Vector3.zero)
+                return;
+
             direction.Normalize();
             transform.forward = direction;
             _controller.SimpleMove(direction * _moveSpeed);
         }
 
-        private void Comeback()
+        public void LookAtPlayer()
         {
-            if (Vector3.Distance(transform.position, _startPosition) < _arriveDistance)
-            {
-                Health = _maxHealth;
-                ChangeState(MonsterState.Idle);
-                return;
-            }
-
-            Vector3 direction = _startPosition - transform.position;
-            direction.y = 0f;
-            direction.Normalize();
-            transform.forward = direction;
-            _controller.SimpleMove(direction * _moveSpeed);
-        }
-
-        private void Attack()
-        {
-            float distance = Vector3.Distance(transform.position, _player.transform.position);
-            if (distance > _attackDistance)
-            {
-                ChangeState(MonsterState.Trace);
-                return;
-            }
-
             Vector3 direction = _player.transform.position - transform.position;
             direction.y = 0f;
             if (direction != Vector3.zero)
                 transform.forward = direction.normalized;
+        }
 
-            if (_attackTimer <= 0f)
-            {
-                _attackTimer = _attackInterval;
-                _player.TakeDamage(new DamageInfo(_damage));
-            }
+        public void TryAttackPlayer()
+        {
+            if (_attackTimer > 0f)
+                return;
+
+            _attackTimer = _attackInterval;
+            _player.TakeDamage(new DamageInfo(_damage));
+        }
+
+        public void RestoreHealth()
+        {
+            Health = _maxHealth;
+            OnHealthChanged?.Invoke();
+        }
+
+        public void SetControllerEnabled(bool isEnabled)
+        {
+            _controller.enabled = isEnabled;
+        }
+
+        public void Despawn()
+        {
+            Destroy(gameObject);
         }
 
         public void TakeDamage(DamageInfo damageInfo)
@@ -162,23 +186,18 @@ namespace Monster
                 return;
 
             Health = Mathf.Max(0f, Health - damageInfo.Value);
-            OnDamaged?.Invoke();
+            OnHealthChanged?.Invoke();
 
             SpawnBloodSpray(damageInfo);
 
             if (Health > 0f)
             {
-                if (_hitCoroutine != null)
-                    StopCoroutine(_hitCoroutine);
                 ChangeState(MonsterState.Hit);
-                _hitCoroutine = StartCoroutine(HitRoutine());
             }
             else
             {
-                StopAllCoroutines();
                 ChangeState(MonsterState.Death);
                 OnDeath?.Invoke();
-                StartCoroutine(DeathRoutine());
             }
         }
 
@@ -191,20 +210,6 @@ namespace Monster
                 ? Quaternion.identity
                 : Quaternion.LookRotation(damageInfo.HitNormal);
             Instantiate(_bloodSprayPrefab, damageInfo.HitPoint, rotation, transform);
-        }
-
-        private IEnumerator HitRoutine()
-        {
-            yield return new WaitForSeconds(_hitTime);
-            _hitCoroutine = null;
-            ChangeState(MonsterState.Trace);
-        }
-
-        private IEnumerator DeathRoutine()
-        {
-            _controller.enabled = false;
-            yield return new WaitForSeconds(_deathTime);
-            Destroy(gameObject);
         }
     }
 }

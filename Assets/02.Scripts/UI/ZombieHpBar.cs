@@ -25,12 +25,12 @@ namespace UI
 
         private void OnEnable()
         {
-            _zombie.OnDamaged += UpdateHpBar;
+            _zombie.OnHealthChanged += UpdateHpBar;
         }
 
         private void OnDisable()
         {
-            _zombie.OnDamaged -= UpdateHpBar;
+            _zombie.OnHealthChanged -= UpdateHpBar;
         }
 
         private void LateUpdate()
