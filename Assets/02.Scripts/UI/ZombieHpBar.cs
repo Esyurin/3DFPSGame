@@ -23,14 +23,27 @@ namespace UI
             _slider.value = _zombie.Health / _zombie.MaxHealth;
         }
 
+        private void OnEnable()
+        {
+            _zombie.OnDamaged += UpdateHpBar;
+        }
+
+        private void OnDisable()
+        {
+            _zombie.OnDamaged -= UpdateHpBar;
+        }
+
         private void LateUpdate()
+        {
+            // 빌보드: 체력바가 카메라를 쳐다보게 한다.
+            transform.LookAt(_camera.transform);
+        }
+
+        private void UpdateHpBar()
         {
             // 0 ~ 100% -> 0 ~ 1
             // _slider.vale = 좀비의 현재 체력 / 좀비의 최대 체력
             _slider.value = _zombie.Health / _zombie.MaxHealth;
-
-            // 빌보드: 체력바가 카메라를 쳐다보게 한다.
-            transform.LookAt(_camera.transform);
         }
     }
 }

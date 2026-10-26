@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using Core;
 using UnityEngine;
 
@@ -38,6 +39,9 @@ namespace Monster
         public float Health { get; private set; }
 
         public float MaxHealth => _maxHealth;
+
+        public event Action OnDamaged;
+        public event Action OnDeath;
 
         private void Awake()
         {
@@ -144,7 +148,7 @@ namespace Monster
             if (_attackTimer <= 0f)
             {
                 _attackTimer = _attackInterval;
-                _player.TryTakeDamage(_damage);
+                _player.TakeDamage(new DamageInfo(_damage));
             }
         }
 
@@ -154,6 +158,8 @@ namespace Monster
                 return;
 
             Health = Mathf.Max(0f, Health - damageInfo.Value);
+            OnDamaged?.Invoke();
+
             SpawnBloodSpray(damageInfo);
 
             if (Health > 0f)
@@ -167,6 +173,7 @@ namespace Monster
             {
                 StopAllCoroutines();
                 ChangeState(MonsterState.Death);
+                OnDeath?.Invoke();
                 StartCoroutine(DeathRoutine());
             }
         }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +8,7 @@ namespace UI
     [RequireComponent(typeof(Image))]
     public class HitEffectUI : MonoBehaviour
     {
+        [SerializeField] private Player.Player _player;
         [SerializeField] private float _maxAlpha = 0.4f;
         [SerializeField] private float _fadeTime = 0.3f;
 
@@ -17,6 +19,16 @@ namespace UI
         {
             _image = GetComponent<Image>();
             SetAlpha(0f);
+        }
+
+        private void OnEnable()
+        {
+            _player.OnDamaged += Play;
+        }
+
+        private void OnDisable()
+        {
+            _player.OnDamaged -= Play;
         }
 
         public void Play()
