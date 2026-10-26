@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Monster
@@ -15,6 +16,9 @@ namespace Monster
         public int Count => _zombies.Count;
         public int MaxCount => _maxCount;
         public bool IsFull => Count >= _maxCount;
+
+        // 좀비 수가 바뀌면 (현재 수, 최대 수)를 알린다. UI 같은 구독자는 이 이벤트만 보고 갱신한다.
+        public event Action<int, int> OnCountChanged;
 
         private void Awake()
         {
@@ -40,6 +44,7 @@ namespace Monster
 
             _zombies.Add(zombie);
             zombie.OnDeath += HandleZombieDeath;
+            NotifyCountChanged();
         }
 
         private void HandleZombieDeath(Zombie zombie)
@@ -47,6 +52,12 @@ namespace Monster
             // 풀에서 다시 꺼내 등록할 때 중복 구독되지 않도록 해제한다.
             zombie.OnDeath -= HandleZombieDeath;
             _zombies.Remove(zombie);
+            NotifyCountChanged();
+        }
+
+        private void NotifyCountChanged()
+        {
+            OnCountChanged?.Invoke(Count, _maxCount);
         }
     }
 }
