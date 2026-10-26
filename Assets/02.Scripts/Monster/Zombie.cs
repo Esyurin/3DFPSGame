@@ -64,7 +64,7 @@ namespace Monster
         public float RoamTimeout => _roamTimeout;
 
         public event Action OnHealthChanged;
-        public event Action OnDeath;
+        public event Action<Zombie> OnDeath;
 
         private void Awake()
         {
@@ -222,7 +222,7 @@ namespace Monster
             else
             {
                 ChangeState(MonsterState.Death);
-                OnDeath?.Invoke();
+                OnDeath?.Invoke(this);
             }
         }
 
