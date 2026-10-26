@@ -26,6 +26,9 @@ namespace UI
         private void OnEnable()
         {
             _zombie.OnHealthChanged += UpdateHpBar;
+
+            // 풀에서 다시 꺼낸 좀비는 꺼져 있는 동안 체력이 바뀌었으므로 다시 맞춘다.
+            UpdateHpBar();
         }
 
         private void OnDisable()

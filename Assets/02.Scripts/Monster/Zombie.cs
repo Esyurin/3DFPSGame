@@ -41,6 +41,7 @@ namespace Monster
         private readonly Dictionary<MonsterState, ZombieState> _states = new Dictionary<MonsterState, ZombieState>();
 
         private CharacterController _controller;
+        private ZombiePool _pool;
         private Player.Player _player;
         private ZombieState _currentState;
         private float _attackTimer;
@@ -90,6 +91,27 @@ namespace Monster
 
             _currentState = _states[_state];
             _currentState.Enter();
+        }
+
+        public void Init(ZombiePool pool)
+        {
+            _pool = pool;
+        }
+
+        // 풀에서 꺼낼 때 호출한다. 꺼져 있는 동안 위치와 상태를 새로 맞춘다.
+        public void Spawn(Vector3 position, Transform[] waypoints)
+        {
+            // CharacterController가 켜져 있으면 위치를 옮겨도 덮어쓰므로 잠깐 끈다.
+            _controller.enabled = false;
+            transform.SetPositionAndRotation(position, Quaternion.identity);
+            _controller.enabled = true;
+
+            _startPosition = position;
+            _patrolWaypoints = waypoints;
+            _attackTimer = 0f;
+            Health = _maxHealth;
+            OnHealthChanged?.Invoke();
+            ChangeState(MonsterState.Idle);
         }
 
         private void Update()
@@ -177,7 +199,10 @@ namespace Monster
 
         public void Despawn()
         {
-            Destroy(gameObject);
+            if (_pool != null)
+                _pool.Release(this);
+            else
+                Destroy(gameObject);
         }
 
         public void TakeDamage(DamageInfo damageInfo)
@@ -209,7 +234,11 @@ namespace Monster
             Quaternion rotation = damageInfo.HitNormal == Vector3.zero
                 ? Quaternion.identity
                 : Quaternion.LookRotation(damageInfo.HitNormal);
-            Instantiate(_bloodSprayPrefab, damageInfo.HitPoint, rotation, transform);
+            ParticleSystem bloodSpray = Instantiate(_bloodSprayPrefab, damageInfo.HitPoint, rotation, transform);
+
+            // 좀비는 풀에서 재사용되므로, 자식으로 붙은 피 이펙트가 쌓이지 않게 다 뿜고 나면 지운다.
+            ParticleSystem.MainModule main = bloodSpray.main;
+            Destroy(bloodSpray.gameObject, main.duration + main.startLifetime.constantMax);
         }
     }
 }
