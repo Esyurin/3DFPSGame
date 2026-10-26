@@ -1,4 +1,5 @@
 using System;
+using Game;
 using UI;
 using UnityEngine;
 using Weapon;
@@ -33,6 +34,9 @@ namespace Player
 
         private void Update()
         {
+            if (GameManager.Instance.State != GameState.Playing)
+                return;
+
             if (Input.GetMouseButtonDown(1))
             {
                 _holdTime = 0f;

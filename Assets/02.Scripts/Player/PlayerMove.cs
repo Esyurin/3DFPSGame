@@ -1,4 +1,5 @@
 ﻿using System;
+using Game;
 using UnityEngine;
 
 namespace Player
@@ -49,6 +50,8 @@ namespace Player
 
         private void Update()
         {
+            if (GameManager.Instance.State != GameState.Playing)
+                return;
             Move();
         }
 

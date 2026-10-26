@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using Core;
 using Environment;
+using Game;
 using Monster;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Player
 {
@@ -33,6 +35,9 @@ namespace Player
 
         private void Update()
         {
+            if (GameManager.Instance.State != GameState.Playing)
+                return;
+
             if (Input.GetButton(FireButton))
                 Shoot();
 
@@ -46,6 +51,11 @@ namespace Player
                 return;
 
             if (_bulletCount <= 0)
+                return;
+
+            // 2. 버튼을 누르고 있고, 마우스가 UI 위에 있지 않고, 쏠 때가 되었고, 총알이 남아 있으면 쏜다.
+            bool isPointerOverUI = EventSystem.current.IsPointerOverGameObject();
+            if (isPointerOverUI)
                 return;
 
             CancelReload();

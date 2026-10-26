@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using Core;
+using Game;
 using UnityEngine;
 
 namespace Monster
@@ -60,6 +61,9 @@ namespace Monster
 
         private void Update()
         {
+            if (GameManager.Instance.State != GameState.Playing)
+                return;
+
             if (_attackTimer > 0f)
                 _attackTimer -= Time.deltaTime;
 
