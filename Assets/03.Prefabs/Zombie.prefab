@@ -515,7 +515,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d99adff6282b49d984bf15bf853c8104, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Monster.Zombie
-  _bloodSprayPrefab: {fileID: 2202571258380052269, guid: 114f48593cbb77b428bb4a4025b4dcb8, type: 3}
+  _bloodSprayPrefab: {fileID: 198615267133080452, guid: ed67c2cb8e3a7fb418c6fbb1b001dce2, type: 3}
   _animator: {fileID: 473877092731800863}
   _state: 0
   _maxHealth: 50
