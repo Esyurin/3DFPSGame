@@ -14,6 +14,7 @@ namespace Player
         private const string FireButton = "Fire1";
 
         [SerializeField] private ParticleSystem _hitEffectPrefab;
+        [SerializeField] private ParticleSystem _muzzleFlash; // 총구에 붙어 있다가 쏠 때마다 다시 재생하는 화염
 
         [SerializeField] private float _range = 100f;
         [SerializeField] private float _damage = 10f;
@@ -22,7 +23,7 @@ namespace Player
         [SerializeField] private float _reloadTime = 1.5f;
 
         [Header("Laser")]
-        [SerializeField] private LineRenderer _laserLine; // 총을 쏠 때 잠깐 보이는 레이저 선
+        [SerializeField] private LineRenderer _laserLine; // 총을 쏠 때 잠깐 보이는 예광탄 선
         [SerializeField] private Transform _muzzle; // 레이저가 시작되는 총구 위치
         [SerializeField] private float _laserDuration = 0.05f; // 레이저가 보이는 시간 (s)
 
@@ -86,9 +87,24 @@ namespace Player
 
                 ParticleSystem hitEffect = Instantiate(_hitEffectPrefab, hit.point, Quaternion.identity);
                 hitEffect.transform.LookAt(hit.point + hit.normal);
+
+                // 피탄 이펙트가 스스로 지워지지 않아도 쌓이지 않게, 다 재생되면 지운다.
+                ParticleSystem.MainModule main = hitEffect.main;
+                Destroy(hitEffect.gameObject, main.duration + main.startLifetime.constantMax);
             }
 
+            PlayMuzzleFlash();
             ShowLaser(_muzzle.position, endPoint);
+        }
+
+        private void PlayMuzzleFlash()
+        {
+            if (_muzzleFlash == null)
+                return;
+
+            // 연사 중에는 이전 화염이 끝나기 전에 다시 쏘므로, 지우고 처음부터 재생한다.
+            _muzzleFlash.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            _muzzleFlash.Play(true);
         }
 
         private void ShowLaser(Vector3 start, Vector3 end)
