@@ -4,10 +4,11 @@ using Core;
 using Game;
 using Monster.States;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace Monster
 {
-    [RequireComponent(typeof(CharacterController))]
+    [RequireComponent(typeof(NavMeshAgent))]
     public class Zombie : MonoBehaviour, IDamageable
     {
         private static readonly int s_stateHash = Animator.StringToHash("State");
@@ -27,6 +28,7 @@ namespace Monster
         [SerializeField] private float _maxHealth = 50f;
         [SerializeField] private float _damage = 10f;
         [SerializeField] private float _moveSpeed = 4f;
+        [SerializeField, Range(0f, 1f)] private float _mudSpeedMultiplier = 0.5f; // 진흙 위에서 걷는 빠르기 배율
 
         [Header("Distance (m)")]
         [SerializeField] private float _detectDistance = 8f;
@@ -47,12 +49,14 @@ namespace Monster
 
         private readonly Dictionary<MonsterState, ZombieState> _states = new Dictionary<MonsterState, ZombieState>();
 
-        private CharacterController _controller;
         private ZombiePool _pool;
         private Player.Player _player;
         private ZombieState _currentState;
         private float _attackTimer;
         private Vector3 _startPosition;
+        private NavMeshAgent _agent;
+        private Collider _collider;
+        private int _mudAreaMask;
 
         public float Health { get; private set; }
         public float MaxHealth => _maxHealth;
@@ -75,7 +79,6 @@ namespace Monster
 
         private void Awake()
         {
-            _controller = GetComponent<CharacterController>();
             GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
             if (playerObject == null || !playerObject.TryGetComponent(out _player))
             {
@@ -86,6 +89,15 @@ namespace Monster
 
             Health = _maxHealth;
             _startPosition = transform.position;
+
+            // 첫 상태의 Enter에서 에이전트를 쓰므로 상태보다 먼저 가져온다.
+            _agent = GetComponent<NavMeshAgent>();
+            _agent.speed = _moveSpeed;
+            _collider = GetComponent<Collider>();
+
+            // Areas 탭에 Mud가 없으면 -1이 돌아오므로, 그때는 진흙으로 보는 곳이 없게 0으로 둔다.
+            int mudArea = NavMesh.GetAreaFromName("Mud");
+            _mudAreaMask = mudArea >= 0 ? 1 << mudArea : 0;
 
             _states.Add(MonsterState.Idle, new ZombieIdleState(this));
             _states.Add(MonsterState.Patrol, new ZombiePatrolState(this));
@@ -114,10 +126,10 @@ namespace Monster
         // 풀에서 꺼낼 때 호출한다. 꺼져 있는 동안 위치와 상태를 새로 맞춘다.
         public void Spawn(Vector3 position, Transform[] waypoints)
         {
-            // CharacterController가 켜져 있으면 위치를 옮겨도 덮어쓰므로 잠깐 끈다.
-            _controller.enabled = false;
+            // NavMeshAgent가 켜져 있으면 위치를 옮겨도 덮어쓰므로 잠깐 끈다. 죽을 때 꺼둔 것도 여기서 다시 켠다.
+            _agent.enabled = false;
             transform.SetPositionAndRotation(position, Quaternion.identity);
-            _controller.enabled = true;
+            SetBodyEnabled(true);
 
             _startPosition = position;
             _patrolWaypoints = waypoints;
@@ -135,7 +147,20 @@ namespace Monster
             if (_attackTimer > 0f)
                 _attackTimer -= Time.deltaTime;
 
+            UpdateMoveSpeed();
             _currentState.Update();
+        }
+
+        // Cost는 길을 고를 때만 쓰이고 빠르기는 바꾸지 않으므로, 진흙 위에 서 있으면 직접 느리게 걷게 한다.
+        private void UpdateMoveSpeed()
+        {
+            // 죽어서 에이전트가 꺼졌거나 NavMesh 밖이면 지금 서 있는 곳을 알 수 없다.
+            if (!_agent.isActiveAndEnabled || !_agent.isOnNavMesh)
+                return;
+
+            _agent.SamplePathPosition(NavMesh.AllAreas, 0f, out NavMeshHit hit);
+            bool isOnMud = (hit.mask & _mudAreaMask) != 0;
+            _agent.speed = isOnMud ? _moveSpeed * _mudSpeedMultiplier : _moveSpeed;
         }
 
         public void ChangeState(MonsterState nextState)
@@ -183,14 +208,7 @@ namespace Monster
 
         public void MoveTo(Vector3 target)
         {
-            Vector3 direction = target - transform.position;
-            direction.y = 0f;
-            if (direction == Vector3.zero)
-                return;
-
-            direction.Normalize();
-            transform.forward = direction;
-            _controller.SimpleMove(direction * _moveSpeed);
+            _agent.SetDestination(target);
         }
 
         public void LookAtPlayer()
@@ -218,9 +236,16 @@ namespace Monster
             OnHealthChanged?.Invoke();
         }
 
-        public void SetControllerEnabled(bool isEnabled)
+        public void SetBodyEnabled(bool isEnabled)
         {
-            _controller.enabled = isEnabled;
+            _agent.enabled = isEnabled;
+            if (_collider != null)
+                _collider.enabled = isEnabled;
+        }
+
+        public void ResetAttackTimer()
+        {
+            _attackTimer = 0f;
         }
 
         public void Despawn()
@@ -267,6 +292,16 @@ namespace Monster
             // 좀비는 풀에서 재사용되므로, 자식으로 붙은 피 이펙트가 쌓이지 않게 다 뿜고 나면 지운다.
             ParticleSystem.MainModule main = bloodSpray.main;
             Destroy(bloodSpray.gameObject, main.duration + main.startLifetime.constantMax);
+        }
+
+        public void Stop()
+        {
+            // 풀에서 꺼지기 전이나 죽어서 에이전트가 꺼진 상태면 ResetPath가 에러를 내므로 건너뛴다.
+            if (!_agent.isActiveAndEnabled || !_agent.isOnNavMesh)
+                return;
+
+            _agent.ResetPath();
+            _agent.velocity = Vector3.zero;
         }
     }
 }

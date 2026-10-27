@@ -14,7 +14,8 @@ namespace Monster.States
         public override void Enter()
         {
             _timer = 0f;
-            Zombie.SetControllerEnabled(false);
+            Zombie.Stop();
+            Zombie.SetBodyEnabled(false);
         }
 
         public override void Update()

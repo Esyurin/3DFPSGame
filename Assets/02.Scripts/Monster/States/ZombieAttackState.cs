@@ -7,6 +7,13 @@ namespace Monster.States
         {
         }
 
+        // 공격 거리에 들어오면 바로 한 대 칠 수 있게 타이머를 비우고, 걷던 것을 멈춘다.
+        public override void Enter()
+        {
+            Zombie.ResetAttackTimer();
+            Zombie.Stop();
+        }
+
         public override void Update()
         {
             if (Zombie.DistanceToPlayer() > Zombie.AttackDistance)

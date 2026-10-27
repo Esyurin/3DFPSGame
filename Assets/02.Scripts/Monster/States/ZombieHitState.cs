@@ -14,6 +14,7 @@ namespace Monster.States
         public override void Enter()
         {
             _timer = 0f;
+            Zombie.Stop();
         }
 
         public override void Update()

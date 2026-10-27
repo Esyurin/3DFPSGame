@@ -14,6 +14,8 @@ namespace Monster.States
         public override void Enter()
         {
             _timer = 0f;
+            // 복귀·배회 중에 남은 경로를 따라 계속 걸어가지 않게 멈춘다.
+            Zombie.Stop();
         }
 
         public override void Update()

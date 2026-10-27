@@ -417,8 +417,8 @@ GameObject:
   - component: {fileID: 6471939418765470318}
   - component: {fileID: 8777316803398150839}
   - component: {fileID: 4397589433628439518}
-  - component: {fileID: 6375660941907371250}
   - component: {fileID: 6105627513858859861}
+  - component: {fileID: 3001161452539421257}
   m_Layer: 9
   m_Name: Zombie
   m_TagString: Zombie
@@ -502,31 +502,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!143 &6375660941907371250
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6774852215488968344}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &6105627513858859861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -545,9 +520,9 @@ MonoBehaviour:
   _maxHealth: 50
   _damage: 10
   _moveSpeed: 4
-  _detectDistance: 8
+  _detectDistance: 10
   _attackDistance: 1.5
-  _comebackDistance: 15
+  _comebackDistance: 30
   _arriveDistance: 0.5
   _roamRadius: 6
   _attackInterval: 1
@@ -556,6 +531,28 @@ MonoBehaviour:
   _idleTime: 2
   _roamTimeout: 5
   _patrolWaypoints: []
+--- !u!195 &3001161452539421257
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6774852215488968344}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 360
+  m_StoppingDistance: 0.7
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 0
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 1
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &7693645543760793943
 GameObject:
   m_ObjectHideFlags: 0
