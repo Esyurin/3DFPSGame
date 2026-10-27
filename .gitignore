@@ -87,3 +87,9 @@ gha-creds-*.json
 *.ipr
 *.iws
 *.csproj.DotSettings
+
+# Kevin Iglesias Human Melee Animations: 게임에서 쓰지 않는 데모 씬과 블렌더 원본
+/[Aa]ssets/10.ThirdParty/Kevin Iglesias/Human Animations/Unity Demo Scenes/
+/[Aa]ssets/10.ThirdParty/Kevin Iglesias/Human Animations/Unity Demo Scenes.meta
+/[Aa]ssets/10.ThirdParty/Kevin Iglesias/Human Animations/Animations/HumanMeleeAnimations_BlenderFiles.zip
+/[Aa]ssets/10.ThirdParty/Kevin Iglesias/Human Animations/Animations/HumanMeleeAnimations_BlenderFiles.zip.meta
