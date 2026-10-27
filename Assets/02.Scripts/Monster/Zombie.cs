@@ -10,8 +10,15 @@ namespace Monster
     [RequireComponent(typeof(CharacterController))]
     public class Zombie : MonoBehaviour, IDamageable
     {
+        private static readonly int s_stateHash = Animator.StringToHash("State");
+        private static readonly int s_attackHash = Animator.StringToHash("Attack");
+        private static readonly int s_hitHash = Animator.StringToHash("Hit");
+
         [Header("Effect")]
         [SerializeField] private ParticleSystem _bloodSprayPrefab;
+
+        [Header("Animation")]
+        [SerializeField] private Animator _animator;
 
         [Header("State")]
         [SerializeField] private MonsterState _state = MonsterState.Idle;
@@ -93,6 +100,12 @@ namespace Monster
             _currentState.Enter();
         }
 
+        // 풀에서 꺼낼 때(Spawn)는 꺼진 상태라 애니메이터에 값을 못 넣으므로, 켜질 때 현재 상태를 맞춘다.
+        private void OnEnable()
+        {
+            SyncAnimatorState();
+        }
+
         public void Init(ZombiePool pool)
         {
             _pool = pool;
@@ -132,6 +145,17 @@ namespace Monster
             _state = nextState;
             _currentState = _states[nextState];
             _currentState.Enter();
+            SyncAnimatorState();
+        }
+
+        private void SyncAnimatorState()
+        {
+            if (_animator == null || !_animator.isActiveAndEnabled)
+                return;
+
+            _animator.SetInteger(s_stateHash, (int)_state);
+            // 이전 상태에서 남은 트리거가 다음 상태에서 뒤늦게 재생되지 않게 지운다.
+            _animator.ResetTrigger(s_attackHash);
         }
 
         public float DistanceToPlayer()
@@ -184,6 +208,8 @@ namespace Monster
 
             _attackTimer = _attackInterval;
             _player.TakeDamage(new DamageInfo(_damage));
+            if (_animator != null)
+                _animator.SetTrigger(s_attackHash);
         }
 
         public void RestoreHealth()
@@ -218,6 +244,8 @@ namespace Monster
             if (Health > 0f)
             {
                 ChangeState(MonsterState.Hit);
+                if (_animator != null)
+                    _animator.SetTrigger(s_hitHash);
             }
             else
             {
