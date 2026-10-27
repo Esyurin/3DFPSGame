@@ -547,7 +547,7 @@ MonoBehaviour:
   _moveSpeed: 4
   _detectDistance: 8
   _attackDistance: 1.5
-  _comebackDistance: 5
+  _comebackDistance: 15
   _arriveDistance: 0.5
   _roamRadius: 6
   _attackInterval: 1
