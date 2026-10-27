@@ -11,9 +11,10 @@ namespace Monster
     [RequireComponent(typeof(NavMeshAgent))]
     public class Zombie : MonoBehaviour, IDamageable
     {
-        private static readonly int s_stateHash = Animator.StringToHash("State");
+        private static readonly int s_speedHash = Animator.StringToHash("Speed");
         private static readonly int s_attackHash = Animator.StringToHash("Attack");
         private static readonly int s_hitHash = Animator.StringToHash("Hit");
+        private static readonly int s_deathHash = Animator.StringToHash("Death");
 
         [Header("Effect")]
         [SerializeField] private ParticleSystem _bloodSprayPrefab;
@@ -112,12 +113,6 @@ namespace Monster
             _currentState.Enter();
         }
 
-        // 풀에서 꺼낼 때(Spawn)는 꺼진 상태라 애니메이터에 값을 못 넣으므로, 켜질 때 현재 상태를 맞춘다.
-        private void OnEnable()
-        {
-            SyncAnimatorState();
-        }
-
         public void Init(ZombiePool pool)
         {
             _pool = pool;
@@ -141,6 +136,11 @@ namespace Monster
 
         private void Update()
         {
+            // 지금 걷는 빠르기를 애니메이터에 알려 준다. 빠르기에 따라 서 있기와 달리기가 바뀐다.
+            // 죽어서 에이전트가 꺼지면 빠르기를 읽을 수 없으므로 건너뛴다.
+            if (_animator != null && _agent.isActiveAndEnabled)
+                _animator.SetFloat(s_speedHash, _agent.velocity.magnitude);
+
             if (GameManager.Instance.State != GameState.Playing)
                 return;
 
@@ -170,17 +170,6 @@ namespace Monster
             _state = nextState;
             _currentState = _states[nextState];
             _currentState.Enter();
-            SyncAnimatorState();
-        }
-
-        private void SyncAnimatorState()
-        {
-            if (_animator == null || !_animator.isActiveAndEnabled)
-                return;
-
-            _animator.SetInteger(s_stateHash, (int)_state);
-            // 이전 상태에서 남은 트리거가 다음 상태에서 뒤늦게 재생되지 않게 지운다.
-            _animator.ResetTrigger(s_attackHash);
         }
 
         public float DistanceToPlayer()
@@ -225,9 +214,19 @@ namespace Monster
                 return;
 
             _attackTimer = _attackInterval;
-            _player.TakeDamage(new DamageInfo(_damage));
+            // 휘두르기 시작. 대미지는 손이 닿는 순간 OnAttackHit에서 준다.
             if (_animator != null)
                 _animator.SetTrigger(s_attackHash);
+        }
+
+        // 공격 동작에서 손이 닿는 순간 불린다. (Model의 ZombieAnimationEvents가 전해 준다)
+        public void OnAttackHit()
+        {
+            // 휘두르는 사이에 공격이 끝났거나 플레이어가 피했으면 때리지 않는다.
+            if (_state != MonsterState.Attack || DistanceToPlayer() > _attackDistance)
+                return;
+
+            _player.TakeDamage(new DamageInfo(_damage));
         }
 
         public void RestoreHealth()
@@ -270,11 +269,17 @@ namespace Monster
             {
                 ChangeState(MonsterState.Hit);
                 if (_animator != null)
+                {
+                    // 휘두르다 맞으면 남은 공격 트리거 때문에 피격이 끝나자마자 다시 휘두르지 않게 지운다.
+                    _animator.ResetTrigger(s_attackHash);
                     _animator.SetTrigger(s_hitHash);
+                }
             }
             else
             {
                 ChangeState(MonsterState.Death);
+                if (_animator != null)
+                    _animator.SetTrigger(s_deathHash);
                 OnDeath?.Invoke(this);
             }
         }

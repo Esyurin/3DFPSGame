@@ -574,10 +574,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
+  m_Radius: 0.25
+  m_Height: 1.88
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: -0.06, z: 0}
 --- !u!1 &7693645543760793943
 GameObject:
   m_ObjectHideFlags: 0
@@ -814,7 +814,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3019351386366890193, guid: 5f1e3ed9628a12543adb9c996e045e24, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 264996114420596169}
   m_SourcePrefab: {fileID: 100100000, guid: 5f1e3ed9628a12543adb9c996e045e24, type: 3}
 --- !u!95 &473877092731800863 stripped
 Animator:
@@ -826,3 +829,20 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3864096761209981755, guid: 5f1e3ed9628a12543adb9c996e045e24, type: 3}
   m_PrefabInstance: {fileID: 1541238742723486372}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &4361015435322274421 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3019351386366890193, guid: 5f1e3ed9628a12543adb9c996e045e24, type: 3}
+  m_PrefabInstance: {fileID: 1541238742723486372}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &264996114420596169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4361015435322274421}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2838b5233aba1ec4fb71ab52eba9f694, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Monster.ZombieAnimationEvents
