@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Game
@@ -8,10 +9,12 @@ namespace Game
     public class GameManager : MonoBehaviour
     {
         private static GameManager s_instance;
+        private static readonly int s_moveMotion = Animator.StringToHash("MoveMotion");
         public static GameManager Instance => s_instance;
 
         [SerializeField] private TextMeshProUGUI _stateText;
         [SerializeField] private CursorManager _cursorManager;
+        [SerializeField] private Animator _playerAnimator;
 
         private GameState _state = GameState.Ready;
         public GameState State => _state;
@@ -53,8 +56,10 @@ namespace Game
             ChangeState(GameState.GameOver);
             _stateText.text = "게임 오버";
             _stateText.color = Color.red;
-            _stateText.gameObject.SetActive(false);
+            _stateText.gameObject.SetActive(true);
             CursorManager.UnlockCursor();
+
+            _playerAnimator.SetFloat(s_moveMotion, 0f);
         }
 
         private void ChangeState(GameState newState)

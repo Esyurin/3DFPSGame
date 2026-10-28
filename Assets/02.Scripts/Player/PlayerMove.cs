@@ -22,6 +22,7 @@ namespace Player
     [RequireComponent(typeof(PlayerStats))]
     public class PlayerMove : MonoBehaviour
     {
+        private static readonly int s_moveMotion = Animator.StringToHash("MoveMotion");
         [SerializeField] private CharacterController _characterController;
         [SerializeField] private float _jumpPower = 10f;
         [SerializeField] private MoveConfig _config = new();
@@ -41,11 +42,13 @@ namespace Player
         // 가변 점프 배율이 0이어도 점프 다음 프레임의 접지 판정으로 횟수가 초기화되지 않게 한다.
         private bool _jumpedLastFrame;
         private PlayerStats _stats;
+        private Animator _animator;
 
         private void Awake()
         {
             _characterController = GetComponent<CharacterController>();
             _stats = GetComponent<PlayerStats>();
+            _animator = GetComponentInChildren<Animator>();
         }
 
         private void Update()
@@ -63,6 +66,7 @@ namespace Player
 
             // 2. 키보드 입력에 따라 방향을 구한다.
             Vector3 direction = new Vector3(horizontalInput, 0, verticalInput).normalized;
+            _animator.SetFloat(s_moveMotion, direction.magnitude);
             // 캐릭터의 회전 방향을 기준으로 지역 방향 벡터를 월드 방향 벡터로 변환한다.
             direction = transform.TransformDirection(direction);
 

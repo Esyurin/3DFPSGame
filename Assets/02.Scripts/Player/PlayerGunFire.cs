@@ -1,16 +1,18 @@
-using System;
 using System.Collections;
 using Core;
-using Environment;
 using Game;
-using Monster;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace Player
 {
+    // 총구가 카메라에 붙어 있으므로, 카메라가 회전·이동한 뒤에 실행되어야 총구 위치가 한 프레임 늦지 않는다.
+    [DefaultExecutionOrder(100)]
     public class PlayerGunFire : MonoBehaviour
     {
+        private static readonly int s_attack = Animator.StringToHash("Attack");
+        private static readonly int s_moveMotion = Animator.StringToHash("MoveMotion");
+        private static readonly int s_fire = Animator.StringToHash("Fire");
         private const string FireButton = "Fire1";
 
         [SerializeField] private ParticleSystem _hitEffectPrefab;
@@ -28,6 +30,7 @@ namespace Player
         [SerializeField] private float _laserDuration = 0.05f; // 레이저가 보이는 시간 (s)
 
         private Camera _camera;
+        private Animator _animator;
 
         private float _nextFireTime;
         private int _bulletCount;
@@ -37,6 +40,7 @@ namespace Player
         private void Awake()
         {
             _camera = Camera.main;
+            _animator = GetComponentInChildren<Animator>();
             _bulletCount = _maxBulletCount;
             _laserLine.positionCount = 2;
             _laserLine.enabled = false;
@@ -54,8 +58,17 @@ namespace Player
                 Reload();
         }
 
+        private void LateUpdate()
+        {
+            // 레이저는 월드 좌표로 그리므로, 카메라가 따라간 뒤의 총구 위치로 시작점을 다시 붙인다.
+            if (_laserLine.enabled)
+                _laserLine.SetPosition(0, _muzzle.position);
+        }
+
         private void Shoot()
         {
+            _animator.SetBool(s_fire, false);
+
             if (Time.time < _nextFireTime)
                 return;
 
@@ -72,6 +85,8 @@ namespace Player
             // 빗나가도 쏜 것이므로 총알과 쿨다운은 먼저 쓴다.
             _nextFireTime = Time.time + _fireCooldown;
             _bulletCount--;
+
+            _animator.SetBool(s_fire, true);
 
             // 빗나가면 사거리 끝까지 레이저를 그린다.
             Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
