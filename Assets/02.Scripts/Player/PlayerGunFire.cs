@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Core;
 using Game;
@@ -36,6 +37,10 @@ namespace Player
         private int _bulletCount;
         private Coroutine _reloadCoroutine;
         private Coroutine _laserCoroutine;
+
+        public int BulletCount => _bulletCount;
+        public int MaxBulletCount => _maxBulletCount;
+        public event Action<int, int> OnBulletChanged;
 
         private void Awake()
         {
@@ -85,6 +90,7 @@ namespace Player
             // 빗나가도 쏜 것이므로 총알과 쿨다운은 먼저 쓴다.
             _nextFireTime = Time.time + _fireCooldown;
             _bulletCount--;
+            OnBulletChanged?.Invoke(_bulletCount, _maxBulletCount); // 한 발 줄었다고 알린다.
 
             _animator.SetBool(s_fire, true);
 
@@ -156,6 +162,7 @@ namespace Player
         {
             yield return new WaitForSeconds(_reloadTime);
             _bulletCount = _maxBulletCount;
+            OnBulletChanged?.Invoke(_bulletCount, _maxBulletCount); // 한 발 줄었다고 알린다.
             _reloadCoroutine = null;
         }
 
