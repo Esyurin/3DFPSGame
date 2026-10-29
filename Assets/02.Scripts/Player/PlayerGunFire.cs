@@ -8,7 +8,7 @@ using Random = UnityEngine.Random;
 
 namespace Player
 {
-    // 총구가 카메라에 붙어 있으므로, 카메라가 회전·이동한 뒤에 실행되어야 총구 위치가 한 프레임 늦지 않는다.
+    // 총구가 플레이어 모델의 손에 붙어 있으므로, 플레이어가 회전·이동한 뒤에 실행되어야 총구 위치가 한 프레임 늦지 않는다.
     [DefaultExecutionOrder(100)]
     public class PlayerGunFire : MonoBehaviour
     {
@@ -67,7 +67,7 @@ namespace Player
 
         private void LateUpdate()
         {
-            // 레이저는 월드 좌표로 그리므로, 카메라가 따라간 뒤의 총구 위치로 시작점을 다시 붙인다.
+            // 레이저는 월드 좌표로 그리므로, 애니메이션으로 손이 움직인 뒤의 총구 위치로 시작점을 다시 붙인다.
             if (_laserLine.enabled)
                 _laserLine.SetPosition(0, _muzzle.position);
         }
