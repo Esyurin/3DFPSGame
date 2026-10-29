@@ -4,6 +4,7 @@ using Core;
 using Game;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Random = UnityEngine.Random;
 
 namespace Player
 {
@@ -17,7 +18,8 @@ namespace Player
         private const string FireButton = "Fire1";
 
         [SerializeField] private ParticleSystem _hitEffectPrefab;
-        [SerializeField] private ParticleSystem _muzzleFlash; // 총구에 붙어 있다가 쏠 때마다 다시 재생하는 화염
+        [SerializeField] private GameObject[] _muzzleFlashes; // 총구 불꽃 (이 가운데 하나를 켠다)
+        [SerializeField] private float _flashTime = 0.05f; // 불꽃이 보이는 시간 (초)
 
         [SerializeField] private float _range = 100f;
         [SerializeField] private float _damage = 10f;
@@ -114,18 +116,17 @@ namespace Player
                 Destroy(hitEffect.gameObject, main.duration + main.startLifetime.constantMax);
             }
 
-            PlayMuzzleFlash();
+            StartCoroutine(MuzzleFlash_Coroutine()); // 총구에서 불꽃이 번쩍인다.
             ShowLaser(_muzzle.position, endPoint);
         }
 
-        private void PlayMuzzleFlash()
+        // 불꽃 하나를 무작위로 골라 잠깐 켰다가 끈다.
+        private IEnumerator MuzzleFlash_Coroutine()
         {
-            if (_muzzleFlash == null)
-                return;
-
-            // 연사 중에는 이전 화염이 끝나기 전에 다시 쏘므로, 지우고 처음부터 재생한다.
-            _muzzleFlash.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-            _muzzleFlash.Play(true);
+            GameObject flash = _muzzleFlashes[Random.Range(0, _muzzleFlashes.Length)];
+            flash.SetActive(true);
+            yield return new WaitForSeconds(_flashTime);
+            flash.SetActive(false);
         }
 
         private void ShowLaser(Vector3 start, Vector3 end)
