@@ -1,6 +1,5 @@
 using System;
 using Game;
-using UI;
 using UnityEngine;
 using Weapon;
 
@@ -11,7 +10,6 @@ namespace Player
         private static readonly int s_throw = Animator.StringToHash("Throw");
         [SerializeField] private Transform _firePosition;
         [SerializeField] private BombPool _bombPool;
-        [SerializeField] private BombAmountUI _bombAmountUI;
         [SerializeField] private float _baseThrowPower = 15f;
         [SerializeField] private int _maxBombCount = 3;
         [SerializeField] private float _maxHoldTime = 2f;
@@ -38,11 +36,6 @@ namespace Player
             _animator = GetComponentInChildren<Animator>(); // 자식인 Model에 붙어 있다.
             _throwLayer = _animator.GetLayerIndex("Throw Layer");
             _weaponMode = GetComponentInChildren<PlayerWeaponMode>();
-        }
-
-        private void Start()
-        {
-            _bombAmountUI.Refresh(_bombCount);
         }
 
         private void Update()
@@ -79,7 +72,6 @@ namespace Player
 
                 bombRigidbody.AddForce(_camera.transform.forward * _throwForce, ForceMode.Impulse);
                 _bombCount--;
-                _bombAmountUI.Refresh(_bombCount);
 
                 _throwWeight = 1f;
                 _animator.SetTrigger(s_throw);
