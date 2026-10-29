@@ -3881,6 +3881,7 @@ MonoBehaviour:
   _sensitivity: 2
   _minPitch: -90
   _maxPitch: 90
+  _playerZoom: {fileID: 1595047682}
 --- !u!114 &330585549
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19253,6 +19254,7 @@ MonoBehaviour:
   _sniperZoom: {fileID: 716853129}
   _normalFov: 60
   _zoomFov: 15
+  _zoomSensitivityRate: 0.25
 --- !u!1 &1597467201
 GameObject:
   m_ObjectHideFlags: 0

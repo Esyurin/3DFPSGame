@@ -1,4 +1,5 @@
 using Game;
+using Player;
 using UnityEngine;
 
 namespace CameraSystem
@@ -8,6 +9,7 @@ namespace CameraSystem
         [SerializeField] private float _sensitivity = 2f;
         [SerializeField] private float _minPitch = -90f;
         [SerializeField] private float _maxPitch = 90f;
+        [SerializeField] private PlayerZoom _playerZoom; // 확대 중이면 감도를 낮춘다.
 
         private float _yaw;
         private float _pitch;
@@ -28,8 +30,9 @@ namespace CameraSystem
             if (Cursor.lockState != CursorLockMode.Locked)
                 return;
 
-            _yaw += Input.GetAxis("Mouse X") * _sensitivity;
-            _pitch -= Input.GetAxis("Mouse Y") * _sensitivity;
+            float sensitivity = _sensitivity * _playerZoom.SensitivityRate;
+            _yaw += Input.GetAxis("Mouse X") * sensitivity;
+            _pitch -= Input.GetAxis("Mouse Y") * sensitivity;
             _pitch = Mathf.Clamp(_pitch, _minPitch, _maxPitch);
 
             transform.rotation = Quaternion.Euler(_pitch, _yaw, 0f);

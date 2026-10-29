@@ -9,6 +9,13 @@ namespace Player
 
         [SerializeField] private float _sensitivity = 2f;
 
+        private PlayerZoom _zoom;
+
+        private void Awake()
+        {
+            _zoom = GetComponent<PlayerZoom>();
+        }
+
         private void Update()
         {
             if (GameManager.Instance.State != GameState.Playing)
@@ -19,7 +26,7 @@ namespace Player
                 return;
 
             float mouseX = Input.GetAxis(MouseXAxis);
-            transform.Rotate(0f, mouseX * _sensitivity, 0f);
+            transform.Rotate(0f, mouseX * _sensitivity * _zoom.SensitivityRate, 0f); // 확대 중에는 천천히 돈다.
         }
     }
 }
