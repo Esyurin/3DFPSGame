@@ -522,16 +522,16 @@ MonoBehaviour:
   _damage: 10
   _moveSpeed: 4
   _mudSpeedMultiplier: 0.5
-  _detectDistance: 10
+  _detectDistance: 30
   _attackDistance: 1.5
-  _comebackDistance: 30
+  _comebackDistance: 90
   _arriveDistance: 0.5
-  _roamRadius: 6
+  _roamRadius: 60
   _attackInterval: 1
   _hitTime: 0.3
   _deathTime: 2
   _idleTime: 2
-  _roamTimeout: 5
+  _roamTimeout: 30
   _patrolWaypoints: []
 --- !u!195 &3001161452539421257
 NavMeshAgent:
