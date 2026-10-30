@@ -22,5 +22,10 @@ namespace Player
         {
             _swordSwing.DeactivateCollider();
         }
+
+        public void PlaySlashEffect()
+        {
+            _swordSwing.PlaySlashEffect();
+        }
     }
 }

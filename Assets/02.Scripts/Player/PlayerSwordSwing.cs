@@ -1,6 +1,7 @@
 using Core;
 using Game;
 using UnityEngine;
+using UnityEngine.VFX;
 
 namespace Player
 {
@@ -11,6 +12,7 @@ namespace Player
         [SerializeField] private float _damage = 25f; // 대미지
         [SerializeField] private GameObject _sword; // 오른손에 붙은 검 (근접 모드에서만 보인다)
         [SerializeField] private float _swingFadeTime = 0.3f; // 휘두른 뒤 팔이 총으로 돌아오는 시간 (s)
+        [SerializeField] private VisualEffect _slashEffect; // 휘두를 때 앞에 그리는 베기 이펙트 (ArcSlash)
 
         private Animator _animator;
         private PlayerWeaponMode _weaponMode;
@@ -73,6 +75,13 @@ namespace Player
         public void DeactivateCollider()
         {
             _bladeCollider.enabled = false;
+        }
+
+        // 베기 이펙트를 처음부터 다시 그린다. Slash 동작의 PlaySlashEffect 이벤트가 불러 준다.
+        public void PlaySlashEffect()
+        {
+            _slashEffect.Reinit(); // 지난번 이펙트가 남아 있으면 지우고
+            _slashEffect.Play(); // OnPlay 이벤트를 보낸다.
         }
 
         // 칼날에 무언가가 닿으면 MeleeWeapon이 불러 준다.
