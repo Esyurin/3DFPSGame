@@ -26,6 +26,8 @@ namespace Player
                 ChangeMode(WeaponMode.Normal);
             else if (Input.GetKeyDown(KeyCode.Alpha2))
                 ChangeMode(WeaponMode.Sniper);
+            else if (Input.GetKeyDown(KeyCode.Alpha3))
+                ChangeMode(WeaponMode.Melee);
         }
 
         private void ChangeMode(WeaponMode mode)
@@ -42,6 +44,7 @@ namespace Player
             {
                 WeaponMode.Normal => "일반 모드",
                 WeaponMode.Sniper => "저격 모드",
+                WeaponMode.Melee => "근접 모드",
                 _ => _modeText.text
             };
         }

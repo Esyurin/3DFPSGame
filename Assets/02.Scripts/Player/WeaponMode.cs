@@ -3,6 +3,7 @@
     public enum WeaponMode
     {
         Normal,
-        Sniper
+        Sniper,
+        Melee
     }
 }

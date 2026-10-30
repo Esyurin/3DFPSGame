@@ -45,7 +45,7 @@ namespace UI
         // 모드가 바뀌었다는 알림이 오면 불리는 함수(콜백)
         private void RefreshIcon(WeaponMode mode)
         {
-            _weaponIcon.sprite = _modeIcons[(int)mode]; // Normal은 0번 칸, Sniper는 1번 칸
+            _weaponIcon.sprite = _modeIcons[(int)mode]; // Normal은 0번 칸, Sniper는 1번 칸, Melee는 2번 칸
         }
 
         // 총알 수가 바뀌었다는 알림이 오면 불리는 함수(콜백)
