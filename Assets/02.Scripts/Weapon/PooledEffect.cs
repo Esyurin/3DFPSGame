@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Weapon
@@ -5,13 +6,13 @@ namespace Weapon
     [RequireComponent(typeof(ParticleSystem))]
     public class PooledEffect : MonoBehaviour
     {
-        private BombPool _bombPool;
+        private Action<PooledEffect> _release; // 다 재생되면 자기를 풀에 돌려준다.
         private ParticleSystem _particleSystem;
         private bool _isPlaying;
 
-        public void Init(BombPool bombPool)
+        public void Init(Action<PooledEffect> release)
         {
-            _bombPool = bombPool;
+            _release = release;
             _particleSystem = GetComponent<ParticleSystem>();
             _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
@@ -29,7 +30,7 @@ namespace Weapon
                 return;
 
             _isPlaying = false;
-            _bombPool.ReleaseEffect(this);
+            _release(this);
         }
     }
 }

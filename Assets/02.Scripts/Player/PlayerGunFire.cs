@@ -4,6 +4,7 @@ using Core;
 using Game;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Weapon;
 using Random = UnityEngine.Random;
 
 namespace Player
@@ -40,6 +41,11 @@ namespace Player
         private Coroutine _reloadCoroutine;
         private Coroutine _laserCoroutine;
 
+        // 쏠 때마다 새로 만들지 않도록 기다리는 시간은 한 번만 만들어 둔다.
+        private WaitForSeconds _flashWait;
+        private WaitForSeconds _laserWait;
+        private WaitForSeconds _reloadWait;
+
         public int BulletCount => _bulletCount;
         public int MaxBulletCount => _maxBulletCount;
         public event Action<int, int> OnBulletChanged;
@@ -51,6 +57,10 @@ namespace Player
             _bulletCount = _maxBulletCount;
             _laserLine.positionCount = 2;
             _laserLine.enabled = false;
+
+            _flashWait = new WaitForSeconds(_flashTime);
+            _laserWait = new WaitForSeconds(_laserDuration);
+            _reloadWait = new WaitForSeconds(_reloadTime);
         }
 
         private void Update()
@@ -108,12 +118,8 @@ namespace Player
                 if (hit.collider.TryGetComponent(out IDamageable damageable))
                     damageable.TakeDamage(damageInfo);
 
-                ParticleSystem hitEffect = Instantiate(_hitEffectPrefab, hit.point, Quaternion.identity);
-                hitEffect.transform.LookAt(hit.point + hit.normal);
-
-                // 피탄 이펙트가 스스로 지워지지 않아도 쌓이지 않게, 다 재생되면 지운다.
-                ParticleSystem.MainModule main = hitEffect.main;
-                Destroy(hitEffect.gameObject, main.duration + main.startLifetime.constantMax);
+                // 연사할 때마다 만들고 지우지 않도록 풀에서 꺼내 쓴다. 맞은 면 바깥쪽을 보게 한다.
+                EffectPool.Play(_hitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
             }
 
             StartCoroutine(MuzzleFlash_Coroutine()); // 총구에서 불꽃이 번쩍인다.
@@ -125,7 +131,7 @@ namespace Player
         {
             GameObject flash = _muzzleFlashes[Random.Range(0, _muzzleFlashes.Length)];
             flash.SetActive(true);
-            yield return new WaitForSeconds(_flashTime);
+            yield return _flashWait;
             flash.SetActive(false);
         }
 
@@ -143,7 +149,7 @@ namespace Player
 
         private IEnumerator HideLaserRoutine()
         {
-            yield return new WaitForSeconds(_laserDuration);
+            yield return _laserWait;
             _laserLine.enabled = false;
             _laserCoroutine = null;
         }
@@ -161,7 +167,7 @@ namespace Player
 
         private IEnumerator ReloadRoutine()
         {
-            yield return new WaitForSeconds(_reloadTime);
+            yield return _reloadWait;
             _bulletCount = _maxBulletCount;
             OnBulletChanged?.Invoke(_bulletCount, _maxBulletCount); // 한 발 줄었다고 알린다.
             _reloadCoroutine = null;

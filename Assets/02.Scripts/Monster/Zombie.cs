@@ -5,6 +5,7 @@ using Game;
 using Monster.States;
 using UnityEngine;
 using UnityEngine.AI;
+using Weapon;
 
 namespace Monster
 {
@@ -292,11 +293,10 @@ namespace Monster
             Quaternion rotation = damageInfo.HitNormal == Vector3.zero
                 ? Quaternion.identity
                 : Quaternion.LookRotation(damageInfo.HitNormal);
-            ParticleSystem bloodSpray = Instantiate(_bloodSprayPrefab, damageInfo.HitPoint, rotation, transform);
-
-            // 좀비는 풀에서 재사용되므로, 자식으로 붙은 피 이펙트가 쌓이지 않게 다 뿜고 나면 지운다.
-            ParticleSystem.MainModule main = bloodSpray.main;
-            Destroy(bloodSpray.gameObject, main.duration + main.startLifetime.constantMax);
+            // 맞을 때마다 만들고 지우지 않도록 풀에서 꺼내 쓴다.
+            // 좀비 자식으로 붙이면 좀비가 풀로 돌아가며 꺼질 때 이펙트도 같이 꺼져 돌아오지 못하므로, 맞은 자리에 둔다.
+            // (파티클이 월드 공간에서 움직이는 이펙트라 붙이지 않아도 보이는 모습은 같다.)
+            EffectPool.Play(_bloodSprayPrefab, damageInfo.HitPoint, rotation);
         }
 
         public void Stop()

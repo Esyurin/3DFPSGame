@@ -86,7 +86,7 @@ namespace Weapon
         {
             PooledEffect effect = Instantiate(_effectPrefab, transform);
             effect.gameObject.SetActive(false);
-            effect.Init(this);
+            effect.Init(ReleaseEffect);
             return effect;
         }
 
