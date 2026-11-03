@@ -3,6 +3,7 @@ using System.Collections;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Game
 {
@@ -15,6 +16,8 @@ namespace Game
         [SerializeField] private TextMeshProUGUI _stateText;
         [SerializeField] private CursorManager _cursorManager;
         [SerializeField] private Animator _playerAnimator;
+        [SerializeField] private GameObject _optionPopup;
+        [SerializeField] private GameObject _gameOverPopup;
 
         private GameState _state = GameState.Ready;
         public GameState State => _state;
@@ -27,6 +30,67 @@ namespace Game
         private void Start()
         {
             StartCoroutine(StartSequenceRoutine());
+        }
+
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                if (_state == GameState.Playing)
+                    Pause();
+                else if (_state == GameState.Pause)
+                    Resume();
+            }
+        }
+
+        public void Pause()
+        {
+            if (_state != GameState.Playing)
+                return;
+
+            ChangeState(GameState.Pause);
+            Time.timeScale = 0f;
+            _optionPopup.SetActive(true);
+            CursorManager.UnlockCursor();
+        }
+
+        public void Resume()
+        {
+            if (_state != GameState.Pause)
+                return;
+
+            _state = GameState.Playing;
+            Time.timeScale = 1f;
+            _optionPopup.SetActive(false);
+            CursorManager.LockCursor();
+        }
+
+        public void GameOver()
+        {
+            _state = GameState.GameOver;
+            Time.timeScale = 0f;
+            _gameOverPopup.SetActive(true);
+            CursorManager.UnlockCursor();
+        }
+
+        public void Restart()
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+
+        public void Quit()
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
+        }
+
+        private void ChangeState(GameState newState)
+        {
+            _state = newState;
         }
 
         private IEnumerator StartSequenceRoutine()
@@ -46,25 +110,6 @@ namespace Game
             yield return new WaitForSeconds(duration);
 
             _stateText.gameObject.SetActive(false);
-        }
-
-        public void GameOver()
-        {
-            if (_state == GameState.GameOver)
-                return;
-
-            ChangeState(GameState.GameOver);
-            _stateText.text = "게임 오버";
-            _stateText.color = Color.red;
-            _stateText.gameObject.SetActive(true);
-            CursorManager.UnlockCursor();
-
-            _playerAnimator.SetFloat(s_moveMotion, 0f);
-        }
-
-        private void ChangeState(GameState newState)
-        {
-            _state = newState;
         }
     }
 }
